@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Secteurs</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="header-left">
+            <h1>Liste des Secteurs</h1>
+            <p class="subtitle">Gestion et visualisation des secteurs d'activité</p>
+        </div>
+        <button class="add-sector-btn" onclick="ajouterSecteur()">
+            <span class="icon">➕</span>
+            Ajouter un secteur
+        </button>
+    </div>
+
+    <div class="table-container">
+        <div class="table-header">
+            <div class="table-title">Secteurs d'Activité</div>
+            <div class="table-description">Vue d'ensemble de tous les secteurs enregistrés</div>
+        </div>
+
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom du Secteur</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="sector : ${sectors}">
+                <td><span class="id-badge" th:text="${sector.id}"></span></td>
+                <td class="sector-name" th:text="${sector.name}"></td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="edit-btn"
+                                th:attr="data-nom=${sector.name}, data-id=${sector.id}"
+                                onclick="ouvrirFormulaireModification(this)">
+                            Modifier
+                        </button>
+                        <button class="delete-btn"
+                                th:attr="data-id=${sector.id}"
+                                onclick="confirmerSuppression(this)">
+                            Supprimer
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(sectors)}">
+                <td colspan="2" class="empty-state">
+                    <div class="empty-icon">📋</div>
+                    <div>Aucun secteur trouvé</div>
+                    <div style="font-size: 0.85rem; margin-top: 0.5rem;">Ajoutez votre premier secteur pour commencer</div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="stats">
+            <div>Dernière mise à jour: <span id="lastUpdate"></span></div>
+            <div class="pagination-container">
+              <span th:if="${currentPage > 0}">
+                <a th:href="@{/classes(page=${currentPage - 1}, size=5)}" class="pagination-btn">⬅ Précédent</a>
+              </span>
+
+                <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+              <a th:href="@{/classes(page=${i}, size=5)}"
+                 th:text="${i + 1}"
+                 class="pagination-page"
+                 th:classappend="${i == currentPage} ? 'active-page' : ''">
+
+              </a>
+  </span>
+
+                <span th:if="${currentPage + 1 < totalPages}">
+    <a th:href="@{/sectors(page=${currentPage + 1}, size=5)}" class="pagination-btn">Suivant ➡</a>
+  </span>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- MODAL AJOUT SECTEUR -->
+<div id="addSectorModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="fermerModal()">&times;</span>
+        <h2>Ajouter un Secteur</h2>
+        <form method="post" th:action="@{/sectors}" th:object="${newSector}">
+            <label for="name">Nom du secteur :</label>
+            <input type="text" id="name" name="name" required>
+            <button type="submit">Ajouter</button>
+        </form>
+    </div>
+</div>
+<!-- MODAL DE CONFIRMATION -->
+<div id="confirmDeleteModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="fermerModal()">&times;</span>
+        <h2>Confirmer la suppression</h2>
+        <p>Voulez-vous vraiment supprimer ce secteur ?</p>
+        <form id="deleteForm" th:action="@{/sectors/delete}" method="post">
+            <input type="hidden" name="id" id="deleteSectorId">
+            <button type="submit">Oui, Supprimer</button>
+            <button type="button" onclick="fermerModal()">Annuler</button>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL MODIFICATION -->
+<div id="updateSectorModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="fermerModalEdition()">&times;</span>
+        <h2>Modifier un Secteur</h2>
+        <form method="post" th:action="@{/sectors/update}">
+            <input type="hidden" id="updateSectorId" name="id">
+            <label for="updateSectorName">Nom du secteur :</label>
+            <input type="text" id="updateSectorName" name="name" required>
+            <button type="submit">Modifier</button>
+        </form>
+    </div>
+</div>
+
+
+
+<script>
+
+    // Animation au survol des lignes
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach((row, index) => {
+        row.addEventListener('mouseenter', () => {
+            row.style.animationDelay = '0s';
+        });
+    });
+    function ajouterSecteur() {
+        document.getElementById("addSectorModal").style.display = "block";
+    }
+    function confirmerSuppression(button) {
+        const id = button.getAttribute("data-id");
+        document.getElementById("deleteSectorId").value = id;
+        document.getElementById("confirmDeleteModal").style.display = "block";
+    }
+    function fermerModal() {
+        document.getElementById("addSectorModal").style.display = "none";
+    }
+
+    // Fermer le modal si on clique en dehors
+    window.onclick = function(event) {
+        const modal = document.getElementById("addSectorModal");
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    };
+    function ouvrirFormulaireModification(button) {
+        const nom = button.getAttribute("data-nom");
+        const id = button.getAttribute("data-id");
+
+        // Utilisation : remplir un formulaire, ouvrir un modal, etc.
+        console.log("Modifier secteur", id, nom);
+
+        // Exemple : préremplir le champ d’un modal
+        document.getElementById("updateSectorId").value = id;
+        document.getElementById("updateSectorName").value = nom;
+
+        document.getElementById("updateSectorModal").style.display = "block";
+    }
+    function fermerModalEdition() {
+        document.getElementById("updateSectorModal").style.display = "none";
+    }
+
+</script>
+</body>
+</html>

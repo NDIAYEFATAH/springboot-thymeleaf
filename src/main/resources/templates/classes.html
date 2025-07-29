@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Classes</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="header-left">
+            <div style="margin-bottom: 20px;">
+                <input type="text" id="searchInput" placeholder="Rechercher une classe..." style="padding: 8px; width: 300px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+        </div>
+        <button class="add-sector-btn" onclick="ajouterSecteur()">
+            <span class="icon">➕</span>
+            Ajouter une Classe
+        </button>
+    </div>
+
+    <div class="table-container">
+        <div class="table-header">
+            <div class="table-title">Secteurs d'Activité</div>
+            <div class="table-description">Vue d'ensemble de tous les secteurs enregistrés</div>
+        </div>
+
+        <table>
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Nom du Classe</th>
+                <th>Description</th>
+                <th>Secteurs</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="classe : ${classes}">
+                <td><span class="id-badge" th:text="${classe.id}"></span></td>
+                <td class="sector-name" th:text="${classe.className}"></td>
+                <td class="sector-name" th:text="${classe.description}"></td>
+                <td class="sector-name"
+                    th:text="${classe.sector != null ? classe.sector.getName() : 'Non défini'}"></td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="edit-btn"
+                                th:data-id="${classe.id}"
+                                th:data-nom="${classe.getClassName()}"
+                                th:data-description="${classe.description}"
+                                th:data-sector-id="${classe.sector != null ? classe.sector.id : 0}"
+                                onclick="ouvrirFormulaireModification(this)">
+                            Modifier
+                        </button>
+                        <button class="delete-btn" th:data-id="${classe.id}"
+                                onclick="confirmerSuppression(this)">
+                            Supprimer
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(classes)}">
+                <td colspan="2" class="empty-state">
+                    <div class="empty-icon">📋</div>
+                    <div>Aucun secteur trouvé</div>
+                    <div style="font-size: 0.85rem; margin-top: 0.5rem;">Ajoutez votre premier secteur pour commencer
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+
+        <div class="stats">
+            <div>Dernière mise à jour: <span id="lastUpdate"></span></div>
+            <div class="pagination-container">
+              <span th:if="${currentPage > 0}">
+                <a th:href="@{/classes(page=${currentPage - 1}, size=5)}" class="pagination-btn">⬅ Précédent</a>
+              </span>
+
+                <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+              <a th:href="@{/classes(page=${i}, size=5)}"
+               th:text="${i + 1}"
+               class="pagination-page"
+               th:classappend="${i == currentPage} ? 'active-page' : ''">
+
+              </a>
+  </span>
+
+                <span th:if="${currentPage + 1 < totalPages}">
+    <a th:href="@{/classes(page=${currentPage + 1}, size=5)}" class="pagination-btn">Suivant ➡</a>
+  </span>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- MODAL AJOUT CLASSE -->
+<div id="addSectorModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" onclick="fermerModal()">&times;</span>
+        <h2>Ajouter une Classe</h2>
+        <form method="post" th:action="@{/classes}" th:object="${newClasse}">
+            <label for="className">Nom de la classe :</label>
+            <input type="text" id="className" name="className" required>
+
+            <label for="description">Description :</label>
+            <input type="text" id="description" name="description" required>
+
+            <label for="sectorId">Secteur :</label>
+            <select id="sectorId" name="sectorId" required>
+                <option value="">Choisir un secteur</option>
+                <option th:each="sector : ${sectors}"
+                        th:value="${sector.id}"
+                        th:text="${sector.name}">Secteur
+                </option>
+            </select>
+            <br>
+            <button type="submit">Ajouter</button>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL DE CONFIRMATION SUPPRESSION -->
+<div id="confirmDeleteModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" onclick="fermerModalSuppression()">&times;</span>
+        <h2>Confirmer la suppression</h2>
+        <p>Voulez-vous vraiment supprimer cette classe ?</p>
+        <form id="deleteForm" th:action="@{/classes/delete}" method="post">
+            <input type="hidden" name="id" id="deleteClasseId">
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="submit" class="delete-btn" style="flex: 1;">Oui, Supprimer</button>
+                <button type="button" onclick="fermerModalSuppression()" style="flex: 1; background-color: #6c757d;">
+                    Annuler
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL MODIFICATION -->
+<div id="updateSectorModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" onclick="fermerModalEdition()">&times;</span>
+        <h2>Modifier une Classe</h2>
+        <form method="post" th:action="@{/classes/update}">
+            <input type="hidden" id="updateClasseId" name="id">
+
+            <label for="updateClassName">Nom de la classe :</label>
+            <input type="text" id="updateClassName" name="className" required>
+
+            <label for="updateDescription">Description :</label>
+            <input type="text" id="updateDescription" name="description" required>
+
+            <label for="updateSectorId">Secteur :</label>
+            <select id="updateSectorId" name="sectorId" required>
+                <option th:each="sector : ${sectors}"
+                        th:value="${sector.id}"
+                        th:text="${sector.name}">Secteur
+                </option>
+            </select>
+
+            <button type="submit">Modifier</button>
+        </form>
+    </div>
+</div>
+<script th:src="@{/index.js}"></script>
+<script>
+    // Mise à jour de l'heure
+    document.getElementById('lastUpdate').textContent = new Date().toLocaleString('fr-FR');
+
+    // Animation au survol des lignes
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach((row, index) => {
+        row.addEventListener('mouseenter', () => {
+            row.style.animationDelay = '0s';
+        });
+    });
+
+    function ajouterSecteur() {
+        document.getElementById("addSectorModal").style.display = "block";
+    }
+
+    function confirmerSuppression(button) {
+        const id = button.getAttribute("data-id");
+        document.getElementById("deleteClasseId").value = id;
+        document.getElementById("confirmDeleteModal").style.display = "block";
+    }
+
+    function fermerModal() {
+        document.getElementById("addSectorModal").style.display = "none";
+    }
+
+    function fermerModalSuppression() {
+        document.getElementById("confirmDeleteModal").style.display = "none";
+    }
+
+    function ouvrirFormulaireModification(button) {
+        const nom = button.getAttribute("data-nom");
+        const id = button.getAttribute("data-id");
+        const description = button.getAttribute("data-description");
+        const sectorId = button.getAttribute("data-sector-id");
+
+        document.getElementById("updateClasseId").value = id;
+        document.getElementById("updateClassName").value = nom;
+        document.getElementById("updateDescription").value = description;
+        document.getElementById("updateSectorId").value = sectorId;
+        document.getElementById("updateSectorModal").style.display = "block";
+    }
+
+    function fermerModalEdition() {
+        document.getElementById("updateSectorModal").style.display = "none";
+    }
+
+    // Fermer les modaux si on clique en dehors
+    window.onclick = function (event) {
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        });
+    };
+</script>
+</body>
+</html>
