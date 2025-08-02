@@ -202,11 +202,14 @@
         const id = button.getAttribute("data-id");
         const description = button.getAttribute("data-description");
         const sectorId = button.getAttribute("data-sector-id");
+        const select = document.getElementById("updateSectorId");
 
         document.getElementById("updateClasseId").value = id;
         document.getElementById("updateClassName").value = nom;
         document.getElementById("updateDescription").value = description;
-        document.getElementById("updateSectorId").value = sectorId;
+        [...select.options].forEach((option) => {
+            option.selected = option.value == sectorId;
+        });
         document.getElementById("updateSectorModal").style.display = "block";
     }
 

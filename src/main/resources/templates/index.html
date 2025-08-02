@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Système de Gestion - Accueil</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background: #f8fafc;
+      color: #334155;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Header */
+    .header {
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 20px 0;
+      margin-bottom: 60px;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .user-info {
+      font-size: 0.9rem;
+      color: #64748b;
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      margin-bottom: 80px;
+      padding: 40px 0;
+    }
+
+    .hero h1 {
+      font-size: 2.5rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 16px;
+      letter-spacing: -0.025em;
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: #64748b;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Stats Section */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 30px;
+      margin-bottom: 80px;
+    }
+
+    .stat-item {
+      background: white;
+      padding: 30px 24px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .stat-item:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #1e293b;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: #64748b;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+      margin-bottom: 80px;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 32px;
+      text-align: center;
+    }
+
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+    }
+
+    .action-item {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 24px;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.2s ease;
+      display: block;
+    }
+
+    .action-item:hover {
+      border-color: #3b82f6;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .action-icon {
+      font-size: 1.5rem;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .action-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+
+    .action-description {
+      font-size: 0.875rem;
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    /* Recent Items */
+    .recent-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 40px;
+      margin-bottom: 60px;
+    }
+
+    .recent-list {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .list-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #e2e8f0;
+      background: #f8fafc;
+    }
+
+    .list-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 4px;
+    }
+
+    .list-subtitle {
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+
+    .items-list {
+      list-style: none;
+    }
+
+    .item {
+      padding: 16px 24px;
+      border-bottom: 1px solid #f1f5f9;
+      transition: background-color 0.2s ease;
+    }
+
+    .item:hover {
+      background: #f8fafc;
+    }
+
+    .item:last-child {
+      border-bottom: none;
+    }
+
+    .item-name {
+      font-weight: 500;
+      color: #1e293b;
+      margin-bottom: 4px;
+    }
+
+    .item-desc {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-bottom: 6px;
+    }
+
+    .item-meta {
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+
+    .badge {
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .empty-state {
+      padding: 40px 24px;
+      text-align: center;
+      color: #94a3b8;
+    }
+
+    .empty-icon {
+      font-size: 2rem;
+      margin-bottom: 12px;
+      opacity: 0.5;
+    }
+
+    .list-footer {
+      padding: 16px 24px;
+      border-top: 1px solid #f1f5f9;
+      background: #f8fafc;
+    }
+
+    .view-all-link {
+      color: #3b82f6;
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .view-all-link:hover {
+      color: #2563eb;
+      text-decoration: underline;
+    }
+
+    /* Footer */
+    .footer {
+      border-top: 1px solid #e2e8f0;
+      padding: 40px 0;
+      text-align: center;
+      color: #64748b;
+      font-size: 0.875rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 16px;
+      }
+
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .hero p {
+        font-size: 1rem;
+      }
+
+      .stats {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 20px;
+      }
+
+      .recent-section {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+
+      .actions-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header-content {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+      }
+    }
+
+    /* Subtle animations */
+    .fade-in {
+      opacity: 0;
+      animation: fadeIn 0.6s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    .stat-item,
+    .action-item,
+    .recent-list {
+      animation-delay: var(--delay, 0s);
+    }
+  </style>
+</head>
+<body>
+<!-- Header -->
+<header class="header">
+  <div class="container">
+    <div class="header-content">
+      <div class="logo">Système de Gestion</div>
+      <div class="user-info">Tableau de bord principal</div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <!-- Hero Section -->
+  <section class="hero fade-in">
+    <h1>Bienvenue sur votre espace de gestion</h1>
+    <p>Gérez efficacement vos secteurs et classes avec une interface simple et intuitive</p>
+  </section>
+
+  <!-- Statistics -->
+  <section class="stats">
+    <div class="stat-item fade-in" style="--delay: 0.1s">
+      <span class="stat-number" th:text="${totalSectors}">0</span>
+      <div class="stat-label">Secteurs</div>
+    </div>
+    <div class="stat-item fade-in" style="--delay: 0.2s">
+      <span class="stat-number" th:text="${totalClasses}">0</span>
+      <div class="stat-label">Classes</div>
+    </div>
+  </section>
+
+  <!-- Quick Actions -->
+  <section class="quick-actions">
+    <h2 class="section-title">Actions rapides</h2>
+    <div class="actions-grid">
+      <a href="/sectors/new" th:href="@{/sectors/new}" class="action-item fade-in" style="--delay: 0.3s">
+        <span class="action-icon">➕</span>
+        <div class="action-title">Nouveau secteur</div>
+        <div class="action-description">Créer un nouveau secteur d'activité</div>
+      </a>
+
+      <a href="/classes/new" th:href="@{/classes/new}" class="action-item fade-in" style="--delay: 0.4s">
+        <span class="action-icon">📝</span>
+        <div class="action-title">Nouvelle classe</div>
+        <div class="action-description">Ajouter une nouvelle classe</div>
+      </a>
+
+      <a href="/sectors" th:href="@{/sectors}" class="action-item fade-in" style="--delay: 0.5s">
+        <span class="action-icon">📊</span>
+        <div class="action-title">Gérer les secteurs</div>
+        <div class="action-description">Consulter et modifier les secteurs</div>
+      </a>
+
+      <a href="/classes" th:href="@{/classes}" class="action-item fade-in" style="--delay: 0.6s">
+        <span class="action-icon">🎓</span>
+        <div class="action-title">Gérer les classes</div>
+        <div class="action-description">Consulter et modifier les classes</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Recent Items -->
+  <section class="recent-section">
+    <!-- Recent Sectors -->
+    <div class="recent-list fade-in" style="--delay: 0.7s">
+      <div class="list-header">
+        <div class="list-title">Secteurs récents</div>
+        <div class="list-subtitle">Derniers secteurs ajoutés</div>
+      </div>
+
+      <ul class="items-list" th:if="${!#lists.isEmpty(lastSectors)}">
+        <li class="item" th:each="sector : ${lastSectors}">
+          <div class="item-name" th:text="${sector.name}">Nom du secteur</div>
+          <div class="item-desc" th:text="${sector.description}">Description du secteur</div>
+          <div class="item-meta">Ajouté récemment</div>
+        </li>
+      </ul>
+
+      <div class="empty-state" th:if="${#lists.isEmpty(lastSectors)}">
+        <div class="empty-icon">📋</div>
+        <div>Aucun secteur disponible</div>
+      </div>
+
+      <div class="list-footer">
+        <a href="/sectors" th:href="@{/sectors}" class="view-all-link">
+          Voir tous les secteurs →
+        </a>
+      </div>
+    </div>
+
+    <!-- Recent Classes -->
+    <div class="recent-list fade-in" style="--delay: 0.8s">
+      <div class="list-header">
+        <div class="list-title">Classes récentes</div>
+        <div class="list-subtitle">Dernières classes créées</div>
+      </div>
+
+      <ul class="items-list" th:if="${!#lists.isEmpty(lastClasses)}">
+        <li class="item" th:each="classe : ${lastClasses}">
+          <div class="item-name" th:text="${classe.className}">Nom de la classe</div>
+          <div class="item-desc" th:text="${classe.description}">Description de la classe</div>
+          <div class="item-meta">
+            Secteur:
+            <span class="badge" th:text="${classe.sector != null ? classe.sector.name : 'Non défini'}">
+                Secteur
+              </span>
+          </div>
+        </li>
+      </ul>
+
+      <div class="empty-state" th:if="${#lists.isEmpty(lastClasses)}">
+        <div class="empty-icon">📚</div>
+        <div>Aucune classe disponible</div>
+      </div>
+
+      <div class="list-footer">
+        <a href="/classes" th:href="@{/classes}" class="view-all-link">
+          Voir toutes les classes →
+        </a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <p>&copy; 2025 Système de Gestion.</p>
+  </div>
+</footer>
+
+<script>
+  // Animation des compteurs
+  function animateCounter(element, target) {
+    let current = 0;
+    const increment = target / 30;
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= target) {
+        current = target;
+        clearInterval(timer);
+      }
+      element.textContent = Math.floor(current);
+    }, 50);
+  }
+
+  // Initialisation
+  document.addEventListener('DOMContentLoaded', function() {
+    // Animation des compteurs après un délai
+    setTimeout(() => {
+      const numbers = document.querySelectorAll('.stat-number');
+      numbers.forEach(num => {
+        const target = parseInt(num.textContent);
+        if (target > 0) {
+          animateCounter(num, target);
+        }
+      });
+    }, 800);
+  });
+</script>
+</body>
+</html>
